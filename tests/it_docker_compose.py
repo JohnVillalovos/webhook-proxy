@@ -5,7 +5,7 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
     def setUp(self):
         super(DockerComposeIntegrationTest, self).setUp()
 
-        self.prepare_images('alpine')
+        self.prepare_images("alpine")
 
     def test_service_names(self):
         project_yaml = """
@@ -19,7 +19,7 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
             command: echo "hello"
         """
 
-        self.prepare_file('project/docker-compose.yml', project_yaml)
+        self.prepare_file("project/docker-compose.yml", project_yaml)
 
         config = """
         server:
@@ -39,18 +39,18 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
                       {% endfor %}
         """
 
-        self.prepare_file('test-31.yml', config)
+        self.prepare_file("test-31.yml", config)
 
-        container = self.start_app_container('test-31.yml')
+        container = self.start_app_container("test-31.yml")
 
-        response = self.request('/compose/info', data='none')
+        response = self.request("/compose/info", data="none")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('name=app', output)
-        self.assertIn('name=web', output)
+        self.assertIn("name=app", output)
+        self.assertIn("name=web", output)
 
     def test_scale_service(self):
         project_yaml = """
@@ -64,7 +64,7 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
             command: sh -c 'echo "web is running" && sleep 3600'
         """
 
-        self.prepare_file('scaling_project/docker-compose.yml', project_yaml)
+        self.prepare_file("scaling_project/docker-compose.yml", project_yaml)
 
         config = """
         server:
@@ -101,19 +101,19 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
                       {% endfor %}
         """
 
-        self.prepare_file('test-32.yml', config)
+        self.prepare_file("test-32.yml", config)
 
-        container = self.start_app_container('test-32.yml')
+        container = self.start_app_container("test-32.yml")
 
-        response = self.request('/compose/scaling', service='web', num=2)
+        response = self.request("/compose/scaling", service="web", num=2)
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('name=scaling_app_1\nlogs=app is running', output)
-        self.assertIn('name=scaling_web_1\nlogs=web is running', output)
-        self.assertIn('name=scaling_web_2\nlogs=web is running', output)
+        self.assertIn("name=scaling_app_1\nlogs=app is running", output)
+        self.assertIn("name=scaling_web_1\nlogs=web is running", output)
+        self.assertIn("name=scaling_web_2\nlogs=web is running", output)
 
     def test_restart_service(self):
         project_yaml = """
@@ -127,7 +127,7 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
             command: sh -c 'echo "web started at $$(date +%s)" && sleep 3600'
         """
 
-        self.prepare_file('restarts/docker-compose.yml', project_yaml)
+        self.prepare_file("restarts/docker-compose.yml", project_yaml)
 
         config = """
         server:
@@ -189,20 +189,22 @@ class DockerComposeIntegrationTest(IntegrationTestBase):
                       {% endfor %}
         """
 
-        self.prepare_file('test-33.yml', config)
+        self.prepare_file("test-33.yml", config)
 
-        container = self.start_app_container('test-33.yml')
+        container = self.start_app_container("test-33.yml")
 
-        response = self.request('/compose/restart', timeout=1)
+        response = self.request("/compose/restart", timeout=1)
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        initial, after_restart = output.split('--- separator ---')
+        initial, after_restart = output.split("--- separator ---")
 
-        self.assertEqual(initial.count('app started'), 1)
-        self.assertEqual(initial.count('web started'), 2)
+        self.assertEqual(initial.count("app started"), 1)
+        self.assertEqual(initial.count("web started"), 2)
 
-        self.assertEqual(after_restart.count('app started'), 2)  # from project.up and from its own restart
-        self.assertEqual(after_restart.count('web started'), 2)
+        self.assertEqual(
+            after_restart.count("app started"), 2
+        )  # from project.up and from its own restart
+        self.assertEqual(after_restart.count("web started"), 2)

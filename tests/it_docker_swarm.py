@@ -6,8 +6,11 @@ from integrationtest_helper import IntegrationTestBase
 def skip_below_version(version):
     def decorator(f):
         def wrapper(self, *args, **kwargs):
-            if map(int, self.DIND_VERSION.split('.')) < map(int, version.split('.')):
-                self.skipTest(reason='Skipping %s on version %s (< %s)' % (f.__name__, self.DIND_VERSION, version))
+            if map(int, self.DIND_VERSION.split(".")) < map(int, version.split(".")):
+                self.skipTest(
+                    reason="Skipping %s on version %s (< %s)"
+                    % (f.__name__, self.DIND_VERSION, version)
+                )
             else:
                 f(self, *args, **kwargs)
 
@@ -17,13 +20,12 @@ def skip_below_version(version):
 
 
 class DockerSwarmIntegrationTest(IntegrationTestBase):
-
     @classmethod
     def setUpClass(cls):
         super(DockerSwarmIntegrationTest, cls).setUpClass()
 
-        cls.prepare_images('alpine')
-        cls.dind_container.exec_run('docker swarm init')
+        cls.prepare_images("alpine")
+        cls.dind_container.exec_run("docker swarm init")
 
     def tearDown(self):
         super(DockerSwarmIntegrationTest, self).tearDown()
@@ -49,28 +51,30 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
                       {% endfor %}
         """
 
-        self.prepare_file('test-41.yml', config)
+        self.prepare_file("test-41.yml", config)
 
-        service = self.remote_client.services.create('alpine',
-                                                     name='sample-app',
-                                                     command='sh -c "date +%s ; sleep 3600"',
-                                                     stop_grace_period=1)
+        service = self.remote_client.services.create(
+            "alpine",
+            name="sample-app",
+            command='sh -c "date +%s ; sleep 3600"',
+            stop_grace_period=1,
+        )
 
         self.wait_for_service_start(service, num_tasks=1)
 
         self.assertGreater(len(self.get_service_logs(service)), 0)
 
-        container = self.start_app_container('test-41.yml')
+        container = self.start_app_container("test-41.yml")
 
-        response = self.request('/docker/services/list', data='none')
+        response = self.request("/docker/services/list", data="none")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('s=%s#%s' % (service.name, service.id), output)
+        self.assertIn("s=%s#%s" % (service.name, service.id), output)
 
-    @skip_below_version('1.13')
+    @skip_below_version("1.13")
     def test_restart_service(self):
         config = """
         server:
@@ -85,22 +89,24 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
                       service_id: '{{ request.json.service }}'
         """
 
-        self.prepare_file('test-42.yml', config)
+        self.prepare_file("test-42.yml", config)
 
-        service = self.remote_client.services.create('alpine',
-                                                     name='sample-app',
-                                                     command='sh -c "echo \"Starting\" ; sleep 3600"',
-                                                     stop_grace_period=1)
+        service = self.remote_client.services.create(
+            "alpine",
+            name="sample-app",
+            command='sh -c "echo "Starting" ; sleep 3600"',
+            stop_grace_period=1,
+        )
 
         self.wait_for_service_start(service, num_tasks=1)
 
         logs = self.get_service_logs(service)
 
-        self.assertEqual(logs.count('Starting'), 1)
+        self.assertEqual(logs.count("Starting"), 1)
 
-        self.start_app_container('test-42.yml')
+        self.start_app_container("test-42.yml")
 
-        response = self.request('/docker/swarm/restart', service='sample-app')
+        response = self.request("/docker/swarm/restart", service="sample-app")
 
         self.assertEqual(response.status_code, 200)
 
@@ -108,7 +114,7 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
 
         logs = self.get_service_logs(service)
 
-        self.assertEqual(logs.count('Starting'), 2)
+        self.assertEqual(logs.count("Starting"), 2)
 
     def test_scale_service(self):
         config = """
@@ -125,26 +131,30 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
                       replicas: '{{ request.json.replicas }}'
         """
 
-        self.prepare_file('test-43.yml', config)
+        self.prepare_file("test-43.yml", config)
 
-        service = self.remote_client.services.create('alpine',
-                                                     name='sample-app',
-                                                     command='sh -c "echo \"Starting\" ; sleep 3600"',
-                                                     stop_grace_period=1)
+        service = self.remote_client.services.create(
+            "alpine",
+            name="sample-app",
+            command='sh -c "echo "Starting" ; sleep 3600"',
+            stop_grace_period=1,
+        )
 
         self.wait_for_service_start(service, num_tasks=1)
 
         self.assertEqual(len(service.tasks()), 1)
 
-        self.start_app_container('test-43.yml')
+        self.start_app_container("test-43.yml")
 
-        response = self.request('/docker/swarm/scale', service='sample-app', replicas=2)
+        response = self.request("/docker/swarm/scale", service="sample-app", replicas=2)
 
         self.assertEqual(response.status_code, 200)
 
         self.wait_for_service_start(service, num_tasks=2)
 
-        self.assertGreaterEqual(len(service.tasks(filters={'desired-state': 'running'})), 2)
+        self.assertGreaterEqual(
+            len(service.tasks(filters={"desired-state": "running"})), 2
+        )
 
     def test_update_service(self):
         config = """
@@ -164,21 +174,25 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
                         label_2: '{{ request.json.label }}'
         """
 
-        self.prepare_file('test-44.yml', config)
+        self.prepare_file("test-44.yml", config)
 
-        service = self.remote_client.services.create('alpine',
-                                                     name='sample-app',
-                                                     command='sh -c "echo \"Starting\" ; sleep 3600"',
-                                                     stop_grace_period=1)
+        service = self.remote_client.services.create(
+            "alpine",
+            name="sample-app",
+            command='sh -c "echo "Starting" ; sleep 3600"',
+            stop_grace_period=1,
+        )
 
         self.wait_for_service_start(service, num_tasks=1)
 
-        self.start_app_container('test-44.yml')
+        self.start_app_container("test-44.yml")
 
-        response = self.request('/docker/swarm/update',
-                                service='sample-app',
-                                command='sh -c "echo \"Updated\" ; sleep 300"',
-                                label='testing')
+        response = self.request(
+            "/docker/swarm/update",
+            service="sample-app",
+            command='sh -c "echo "Updated" ; sleep 300"',
+            label="testing",
+        )
 
         self.assertEqual(response.status_code, 200)
 
@@ -186,21 +200,27 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
 
         service.reload()
 
-        self.assertEqual(service.attrs.get('Spec').get('Labels', dict()).get('label_1'), 'sample')
-        self.assertEqual(service.attrs.get('Spec').get('Labels', dict()).get('label_2'), 'testing')
+        self.assertEqual(
+            service.attrs.get("Spec").get("Labels", dict()).get("label_1"), "sample"
+        )
+        self.assertEqual(
+            service.attrs.get("Spec").get("Labels", dict()).get("label_2"), "testing"
+        )
 
         logs = self.get_service_logs(service)
 
-        self.assertIn('Starting', logs)
-        self.assertIn('Updated', logs)
+        self.assertIn("Starting", logs)
+        self.assertIn("Updated", logs)
 
     @staticmethod
     def wait_for_service_start(service, num_tasks, max_wait=30):
         for _ in range(max_wait * 2):
             if len(service.tasks()) >= num_tasks:
-                tasks_to_run = service.tasks(filters={'desired-state': 'running'})
+                tasks_to_run = service.tasks(filters={"desired-state": "running"})
 
-                if len(tasks_to_run) > 0 and all(task['Status']['State'] == 'running' for task in tasks_to_run):
+                if len(tasks_to_run) > 0 and all(
+                    task["Status"]["State"] == "running" for task in tasks_to_run
+                ):
                     break
 
             time.sleep(0.5)
@@ -208,7 +228,13 @@ class DockerSwarmIntegrationTest(IntegrationTestBase):
     def get_service_logs(self, service, stdout=True, stderr=False):
         logs = list()
 
-        for container in self.remote_client.containers.list(all=True, filters={'name': service.name}):
-            logs.extend(''.join(char for char in container.logs(stdout=stdout, stderr=stderr)).splitlines())
+        for container in self.remote_client.containers.list(
+            all=True, filters={"name": service.name}
+        ):
+            logs.extend(
+                "".join(
+                    char for char in container.logs(stdout=stdout, stderr=stderr)
+                ).splitlines()
+            )
 
         return filter(len, map(lambda x: x.strip(), logs))

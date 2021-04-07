@@ -12,7 +12,7 @@ import docker_helper
 
 
 _database_path = docker_helper.read_configuration(
-    'REPLAY_DATABASE', '/var/config/webhooks/replay', 'webhooks-replay.db'
+    "REPLAY_DATABASE", "/var/config/webhooks/replay", "webhooks-replay.db"
 )
 
 _schedule_condition = threading.Condition()
@@ -56,13 +56,15 @@ def _schedule():
         if _time > time.time():
             continue
 
-        print('Replaying request on %s' % _path)
+        print("Replaying request on %s" % _path)
 
         try:
-            url = 'http://localhost:%d%s' % (Server.http_port, _path)
+            url = "http://localhost:%d%s" % (Server.http_port, _path)
             requests.request(
-                method=_method, url=url,
-                headers=json.loads(_headers), json=json.loads(_body)
+                method=_method,
+                url=url,
+                headers=json.loads(_headers),
+                json=json.loads(_body),
             )
 
         except Exception:
@@ -70,18 +72,20 @@ def _schedule():
 
         finally:
             with read_write_db() as db:
-                db.execute('DELETE FROM requests WHERE id = :id', {'id': _id})
+                db.execute("DELETE FROM requests WHERE id = :id", {"id": _id})
                 db.commit()
 
 
 def _next_scheduled():
     with read_only_db() as db:
-        return db.execute('''
+        return db.execute(
+            """
           SELECT id, path, method, headers, body, next
           FROM requests
           ORDER BY next ASC
           LIMIT 1
-        ''').fetchone()
+        """
+        ).fetchone()
 
 
 def _until_next_scheduled():
@@ -92,23 +96,24 @@ def _until_next_scheduled():
 
 
 def replay(path, method, headers, body, at):
-    print('Replay requested on %s' % path)
+    print("Replay requested on %s" % path)
 
-    headers = {
-        key: value for key, value in headers.items()
-    }
+    headers = {key: value for key, value in headers.items()}
 
     with read_write_db() as db:
-        db.execute('''
+        db.execute(
+            """
           INSERT INTO requests (path, method, headers, body, next)
           VALUES (:path, :method, :headers, :body, :at)
-        ''', {
-            'path': path,
-            'method': method,
-            'headers': json.dumps(headers),
-            'body': json.dumps(body),
-            'at': at
-        })
+        """,
+            {
+                "path": path,
+                "method": method,
+                "headers": json.dumps(headers),
+                "body": json.dumps(body),
+                "at": at,
+            },
+        )
         db.commit()
 
     with _schedule_condition:
@@ -157,7 +162,8 @@ def _initialize_schema():
     with read_write_db() as db:
         cursor = db.cursor()
 
-        cursor.execute('''
+        cursor.execute(
+            """
           CREATE TABLE IF NOT EXISTS requests (
             id      INTEGER PRIMARY KEY,
             path    TEXT,
@@ -166,8 +172,11 @@ def _initialize_schema():
             body    TEXT,
             next    TIMESTAMP
           )
-        ''')
+        """
+        )
 
-        cursor.execute('''
+        cursor.execute(
+            """
           CREATE INDEX IF NOT EXISTS idx_next_date ON requests(next ASC)
-        ''')
+        """
+        )

@@ -4,10 +4,18 @@ import requests
 from actions import action, Action
 
 
-@action('http')
+@action("http")
 class HttpAction(Action):
-    def __init__(self, target, method='POST', headers=None, body=None, json=False, fail_on_error=False,
-                 output='HTTP {{ response.status_code }} : {{ response.content }}'):
+    def __init__(
+        self,
+        target,
+        method="POST",
+        headers=None,
+        body=None,
+        json=False,
+        fail_on_error=False,
+        output="HTTP {{ response.status_code }} : {{ response.content }}",
+    ):
 
         self.target = target
         self.method = method
@@ -20,13 +28,15 @@ class HttpAction(Action):
     def _run(self):
         headers = self._headers.copy()
 
-        if self.body and 'Content-Length' not in headers:
-            headers['Content-Length'] = str(len(self.body))
+        if self.body and "Content-Length" not in headers:
+            headers["Content-Length"] = str(len(self.body))
 
-        response = requests.request(self.method, self._target, headers=headers, data=self._body)
+        response = requests.request(
+            self.method, self._target, headers=headers, data=self._body
+        )
 
         if self.fail_on_error and response.status_code // 100 != 2:
-            self.error('HTTP call failed (HTTP %d)' % response.status_code)
+            self.error("HTTP call failed (HTTP %d)" % response.status_code)
 
         print(self._render_with_template(self.output_format, response=response))
 

@@ -9,9 +9,9 @@ from actions import action, Action
 from util import ConfigurationException
 
 
-@action('metrics')
+@action("metrics")
 class MetricsAction(Action):
-    def __init__(self, output='Tracking metrics: {{ metric }}', **kwargs):
+    def __init__(self, output="Tracking metrics: {{ metric }}", **kwargs):
         from server import Server
         from endpoints import Endpoint
 
@@ -20,13 +20,15 @@ class MetricsAction(Action):
         self._name = None
 
         if len(kwargs) != 1:
-            raise ConfigurationException('The metrics action has to configure exactly one metric')
+            raise ConfigurationException(
+                "The metrics action has to configure exactly one metric"
+            )
 
         for metric_type, configuration in kwargs.items():
             handler = getattr(self, metric_type)
 
             if not handler:
-                raise ConfigurationException('Invalid metric type: %s' % metric_type)
+                raise ConfigurationException("Invalid metric type: %s" % metric_type)
 
             handler(**configuration)
 
@@ -36,7 +38,8 @@ class MetricsAction(Action):
         self._register(
             Histogram,
             lambda m, t: m.observe(t),
-            name, help or name,
+            name,
+            help or name,
             labels or dict(),
             **kwargs
         )
@@ -45,7 +48,8 @@ class MetricsAction(Action):
         self._register(
             Summary,
             lambda m, t: m.observe(t),
-            name, help or name,
+            name,
+            help or name,
             labels or dict(),
             **kwargs
         )
@@ -54,7 +58,8 @@ class MetricsAction(Action):
         self._register(
             Gauge,
             [lambda m: m.inc(), lambda m, _: m.dec()],
-            name, help or name,
+            name,
+            help or name,
             labels or dict(),
             **kwargs
         )
@@ -63,7 +68,8 @@ class MetricsAction(Action):
         self._register(
             Counter,
             lambda m, _: m.inc(),
-            name, help or name,
+            name,
+            help or name,
             labels or dict(),
             **kwargs
         )
@@ -81,9 +87,12 @@ class MetricsAction(Action):
         def target_metric(response):
             if label_names:
                 return metric.labels(
-                    *map(lambda key: self._render_with_template(
-                        labels.get(key), response=response
-                    ).strip(), label_names)
+                    *map(
+                        lambda key: self._render_with_template(
+                            labels.get(key), response=response
+                        ).strip(),
+                        label_names,
+                    )
                 )
 
             else:

@@ -7,22 +7,26 @@ from actions import action, Action
 from util import ConfigurationException
 
 
-@action('docker')
+@action("docker")
 class DockerAction(Action):
-    client = docker.from_env(version='auto')
+    client = docker.from_env(version="auto")
 
-    def __init__(self, output='{{ result }}', **invocations):
+    def __init__(self, output="{{ result }}", **invocations):
         if len(invocations) != 1:
-            raise ConfigurationException('The "%s" action has to have one invocation' % self.action_name)
+            raise ConfigurationException(
+                'The "%s" action has to have one invocation' % self.action_name
+            )
 
         self.output_format = output
-        self.command, self.arguments = self._split_invocation(invocations, self._target())
+        self.command, self.arguments = self._split_invocation(
+            invocations, self._target()
+        )
 
     def _target(self):
         return self.client
 
     def _split_invocation(self, invocation, target):
-        if invocation is None or not (any(key.startswith('$') for key in invocation)):
+        if invocation is None or not (any(key.startswith("$") for key in invocation)):
             return target, invocation if invocation else dict()
 
         prop, value = next(iter(invocation.items()))
@@ -34,7 +38,11 @@ class DockerAction(Action):
 
         result = self.command(**arguments)
 
-        if result is not None and not isinstance(result, str) and hasattr(result, 'decode'):
+        if (
+            result is not None
+            and not isinstance(result, str)
+            and hasattr(result, "decode")
+        ):
             result = result.decode()
 
         print(self._render_with_template(self.output_format, result=result))

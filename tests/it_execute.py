@@ -4,7 +4,6 @@ from integrationtest_helper import IntegrationTestBase
 
 
 class ExecuteIntegrationTest(IntegrationTestBase):
-
     def test_execute_hostname(self):
         config = """
         server:
@@ -23,17 +22,17 @@ class ExecuteIntegrationTest(IntegrationTestBase):
                     shell: false
         """
 
-        self.prepare_file('test-01.yml', config)
+        self.prepare_file("test-01.yml", config)
 
-        container = self.start_app_container('test-01.yml')
+        container = self.start_app_container("test-01.yml")
 
-        response = self.request('/command', command='hostname')
+        response = self.request("/command", command="hostname")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('host=%s' % container.attrs['Config']['Hostname'], output.strip())
+        self.assertIn("host=%s" % container.attrs["Config"]["Hostname"], output.strip())
 
     def test_execute_base64(self):
         config = """
@@ -52,20 +51,19 @@ class ExecuteIntegrationTest(IntegrationTestBase):
                     shell: true
         """
 
-        self.prepare_file('test-02.yml', config)
+        self.prepare_file("test-02.yml", config)
 
-        container = self.start_app_container('test-02.yml')
+        container = self.start_app_container("test-02.yml")
 
-        response = self.request('/b64', content='testing')
+        response = self.request("/b64", content="testing")
 
         self.assertEqual(response.status_code, 200)
 
-        response = self.request('/b64', content='sample')
+        response = self.request("/b64", content="sample")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('encoded=%s' % base64.b64encode('testing'), output)
-        self.assertIn('encoded=%s' % base64.b64encode('sample'), output)
-
+        self.assertIn("encoded=%s" % base64.b64encode("testing"), output)
+        self.assertIn("encoded=%s" % base64.b64encode("sample"), output)

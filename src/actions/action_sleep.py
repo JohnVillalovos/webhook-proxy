@@ -3,9 +3,11 @@ import time
 from actions import action, Action
 
 
-@action('sleep')
+@action("sleep")
 class SleepAction(Action):
-    def __init__(self, seconds, output='Waiting {{ seconds }} seconds before continuing ...'):
+    def __init__(
+        self, seconds, output="Waiting {{ seconds }} seconds before continuing ..."
+    ):
         self.seconds = seconds
         self.output_format = output
 
@@ -15,4 +17,3 @@ class SleepAction(Action):
         print(self._render_with_template(self.output_format, seconds=seconds))
 
         time.sleep(seconds)
-

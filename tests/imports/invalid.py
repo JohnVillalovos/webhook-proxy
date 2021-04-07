@@ -1,1 +1,1 @@
-raise Exception('Failed to initialize')
+raise Exception("Failed to initialize")

@@ -8,9 +8,9 @@ from flask import request
 from actions import action, Action
 
 
-@action('github-verify')
+@action("github-verify")
 class GitHubVerifyAction(Action):
-    def __init__(self, secret, output='{{ result }}'):
+    def __init__(self, secret, output="{{ result }}"):
         self.secret = secret
         self.output_format = output
 
@@ -18,19 +18,23 @@ class GitHubVerifyAction(Action):
         # based on https://github.com/carlos-jenkins/python-github-webhooks/blob/master/webhooks.py
         secret = str(self._render_with_template(self.secret))
         if six.PY3:
-            secret = secret.encode('utf-8')
+            secret = secret.encode("utf-8")
 
-        header_signature = request.headers.get('X-Hub-Signature')
+        header_signature = request.headers.get("X-Hub-Signature")
         if header_signature is None:
-            self.error('Missing X-Hub-Signature header')
+            self.error("Missing X-Hub-Signature header")
 
-        sha_name, signature = header_signature.split('=')
-        if sha_name != 'sha1':
-            self.error('Invalid hashing algorithm')
+        sha_name, signature = header_signature.split("=")
+        if sha_name != "sha1":
+            self.error("Invalid hashing algorithm")
 
         mac = hmac.new(secret, msg=request.data, digestmod=sha1)
 
         if not hmac.compare_digest(str(mac.hexdigest()), str(signature)):
-            self.error('GitHub webhook validation failed')
+            self.error("GitHub webhook validation failed")
 
-        print(self._render_with_template(self.output_format, result='GitHub webhook successfully validated'))
+        print(
+            self._render_with_template(
+                self.output_format, result="GitHub webhook successfully validated"
+            )
+        )

@@ -3,7 +3,7 @@ from __future__ import print_function
 from actions import action, Action
 
 
-@action('eval')
+@action("eval")
 class EvaluateAction(Action):
     def __init__(self, block):
         self.block = block

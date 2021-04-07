@@ -27,8 +27,8 @@ def _safe_import():
                 error_file = traceback.extract_tb(exc_tb)[1][0]
                 name, _ = os.path.splitext(os.path.basename(error_file))
 
-                if name.startswith('action_'):
-                    name = name[len('action_'):].replace('_', '-')
+                if name.startswith("action_"):
+                    name = name[len("action_") :].replace("_", "-")
 
                 print('The "%s" action is not available' % name)
 
@@ -70,10 +70,10 @@ class _CauseTraceback(object):
         self.content = list()
 
     def write(self, data):
-        self.content.append('  %s' % data)
+        self.content.append("  %s" % data)
 
     def __str__(self):
-        return ''.join(self.content)
+        return "".join(self.content)
 
 
 class Action(object):
@@ -91,27 +91,30 @@ class Action(object):
             cause = _CauseTraceback()
             traceback.print_exc(file=cause)
 
-            raise ActionInvocationException('Failed to invoke %s.run:\n'
-                                            '  Reason (%s): %s\n'
-                                            'Cause:\n%s' %
-                                            (type(self).__name__, type(ex).__name__, ex, cause))
+            raise ActionInvocationException(
+                "Failed to invoke %s.run:\n"
+                "  Reason (%s): %s\n"
+                "Cause:\n%s" % (type(self).__name__, type(ex).__name__, ex, cause)
+            )
 
     def _run(self):
-        raise ActionInvocationException('%s.run not implemented' % type(self).__name__)
+        raise ActionInvocationException("%s.run not implemented" % type(self).__name__)
 
     def _render_with_template(self, template, **kwargs):
         template = Template(template)
-        return template.render(request=request,
-                               timestamp=time.time(),
-                               datetime=time.ctime(),
-                               context=_ContextHelper(),
-                               error=self.error,
-                               replay=self.request_replay,
-                               own_container_id=docker_helper.get_current_container_id(),
-                               read_config=docker_helper.read_configuration,
-                               **kwargs)
+        return template.render(
+            request=request,
+            timestamp=time.time(),
+            datetime=time.ctime(),
+            context=_ContextHelper(),
+            error=self.error,
+            replay=self.request_replay,
+            own_container_id=docker_helper.get_current_container_id(),
+            read_config=docker_helper.read_configuration,
+            **kwargs
+        )
 
-    def error(self, message=''):
+    def error(self, message=""):
         if not message:
             message = 'The "%s" action threw an error' % self.action_name
 
@@ -122,30 +125,33 @@ class Action(object):
         after = float(after)
 
         if after <= 0:
-            raise ActionInvocationException('Illegal replay interval: %.2f' % after)
+            raise ActionInvocationException("Illegal replay interval: %.2f" % after)
 
         raise ReplayRequested(at=time.time() + after)
 
     @classmethod
     def register(cls, name, action_type):
         if name in cls._registered_actions:
-            raise ConfigurationException('Action already registered: %s' % name)
+            raise ConfigurationException("Action already registered: %s" % name)
 
         cls._registered_actions[name] = action_type
 
     @classmethod
     def create(cls, name, **settings):
         if name not in cls._registered_actions:
-            raise ConfigurationException('Unkown action: %s (registered: %s)' %
-                                         (name, cls._registered_actions.keys()))
+            raise ConfigurationException(
+                "Unkown action: %s (registered: %s)"
+                % (name, cls._registered_actions.keys())
+            )
 
         try:
             return cls._registered_actions[name](**settings)
 
         except Exception as ex:
-            raise ConfigurationException('Failed to create action: %s (settings = %s)\n'
-                                         '  Reason (%s): %s' %
-                                         (name, settings, type(ex).__name__, ex))
+            raise ConfigurationException(
+                "Failed to create action: %s (settings = %s)\n"
+                "  Reason (%s): %s" % (name, settings, type(ex).__name__, ex)
+            )
 
 
 def action(name):
@@ -163,7 +169,10 @@ def _safe_initialize_replays():
     try:
         _initialize_replays()
     except Exception as ex:
-        print('Failed to initialize replays, the functionality won\'t be available! Cause: %s' % ex)
+        print(
+            "Failed to initialize replays, the functionality won't be available! Cause: %s"
+            % ex
+        )
 
 
 _register_available_actions()

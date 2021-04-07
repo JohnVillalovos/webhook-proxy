@@ -2,7 +2,6 @@ from integrationtest_helper import IntegrationTestBase
 
 
 class DockerIntegrationTest(IntegrationTestBase):
-    
     def test_docker_info(self):
         config = """
         server:
@@ -17,17 +16,17 @@ class DockerIntegrationTest(IntegrationTestBase):
                     output: 'version={{ result.ServerVersion }}'
         """
 
-        self.prepare_file('test-21.yml', config)
+        self.prepare_file("test-21.yml", config)
 
-        container = self.start_app_container('test-21.yml')
+        container = self.start_app_container("test-21.yml")
 
-        response = self.request('/info', data='none')
+        response = self.request("/info", data="none")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('version=%s' % self.DIND_VERSION, output)
+        self.assertIn("version=%s" % self.DIND_VERSION, output)
 
     def test_list_containers(self):
         config = """
@@ -49,20 +48,20 @@ class DockerIntegrationTest(IntegrationTestBase):
                       {% endfor %}
         """
 
-        self.prepare_file('test-22.yml', config)
+        self.prepare_file("test-22.yml", config)
 
-        container = self.start_app_container('test-22.yml')
-        
-        response = self.request('/docker/list', name=container.name)
+        container = self.start_app_container("test-22.yml")
+
+        response = self.request("/docker/list", name=container.name)
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertEqual(output.strip().splitlines()[-1], '- %s' % container.id)
+        self.assertEqual(output.strip().splitlines()[-1], "- %s" % container.id)
 
     def test_run_container(self):
-        self.prepare_images('alpine')
+        self.prepare_images("alpine")
 
         config = """
         server:
@@ -80,22 +79,22 @@ class DockerIntegrationTest(IntegrationTestBase):
                         remove: true
         """
 
-        self.prepare_file('test-23.yml', config)
+        self.prepare_file("test-23.yml", config)
 
-        container = self.start_app_container('test-23.yml')
+        container = self.start_app_container("test-23.yml")
 
-        response = self.request('/run', message='testing')
+        response = self.request("/run", message="testing")
 
         self.assertEqual(response.status_code, 200)
 
-        response = self.request('/run', message='sample')
+        response = self.request("/run", message="sample")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('Alpine says: testing', output)
-        self.assertIn('Alpine says: sample', output)
+        self.assertIn("Alpine says: testing", output)
+        self.assertIn("Alpine says: sample", output)
 
     def test_log_container_status(self):
         config = """
@@ -116,20 +115,20 @@ class DockerIntegrationTest(IntegrationTestBase):
                       status={{ context.container.status }}
         """
 
-        self.prepare_file('test-24.yml', config)
+        self.prepare_file("test-24.yml", config)
 
-        container = self.start_app_container('test-24.yml')
+        container = self.start_app_container("test-24.yml")
 
-        response = self.request('/log/status', target=container.id)
+        response = self.request("/log/status", target=container.id)
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('status=running', output)
+        self.assertIn("status=running", output)
 
     def test_restart_container(self):
-        self.prepare_images('alpine')
+        self.prepare_images("alpine")
 
         config = """
         server:
@@ -152,14 +151,14 @@ class DockerIntegrationTest(IntegrationTestBase):
                       {{ context.target.logs(stdout=true, stderr=false) }}
         """
 
-        self.prepare_file('test-25.yml', config)
+        self.prepare_file("test-25.yml", config)
 
-        container = self.start_app_container('test-25.yml')
+        container = self.start_app_container("test-25.yml")
 
-        response = self.request('/docker/restart', message='Starting...')
+        response = self.request("/docker/restart", message="Starting...")
 
         self.assertEqual(response.status_code, 200)
 
         output = container.logs(stdout=True, stderr=False)
 
-        self.assertIn('Starting...\nStarting...', output)
+        self.assertIn("Starting...\nStarting...", output)

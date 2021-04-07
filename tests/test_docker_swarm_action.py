@@ -8,63 +8,90 @@ class DockerSwarmActionTest(ActionTestBase):
         DockerSwarmAction.client = self.mock_client
 
     def test_restart(self):
-        self._invoke({'docker-swarm': {'$restart': {'service_id': 'mock-service'}}})
+        self._invoke({"docker-swarm": {"$restart": {"service_id": "mock-service"}}})
 
-        self.verify('force_update', 1)
+        self.verify("force_update", 1)
 
         self.mock_client.service_attributes = {
-            'Spec': {'TaskTemplate': {'ForceUpdate': 12}}
+            "Spec": {"TaskTemplate": {"ForceUpdate": 12}}
         }
 
-        self._invoke({'docker-swarm': {'$restart': {'service_id': 'fake'}}})
+        self._invoke({"docker-swarm": {"$restart": {"service_id": "fake"}}})
 
-        self.verify('force_update', 13)
+        self.verify("force_update", 13)
 
     def test_scale(self):
-        self._invoke({'docker-swarm': {'$scale': {'service_id': 'mocked', 'replicas': 12}}})
+        self._invoke(
+            {"docker-swarm": {"$scale": {"service_id": "mocked", "replicas": 12}}}
+        )
 
-        self.verify('mode', {'replicated': {'Replicas': 12}})
+        self.verify("mode", {"replicated": {"Replicas": 12}})
 
     def test_update(self):
-        self._invoke({'docker-swarm': {'$update': {
-            'service_id': 'updating', 
-            'image': 'test-image:1.0.y'
-        }}})
-        
-        self.verify('image', 'test-image:1.0.y')
+        self._invoke(
+            {
+                "docker-swarm": {
+                    "$update": {"service_id": "updating", "image": "test-image:1.0.y"}
+                }
+            }
+        )
 
-        self._invoke({'docker-swarm': {'$update': {
-            'service_id': 'updating', 
-            'container_labels': [{'test.label': 'test', 'mock.label': 'mock'}]
-        }}})
-        
-        self.verify('container_labels',
-                    [{'test.label': 'test', 'mock.label': 'mock'}])
+        self.verify("image", "test-image:1.0.y")
 
-        self._invoke({'docker-swarm': {'$update': {
-            'service_id': 'updating', 
-            'labels': [{'service.label': 'testing'}]
-        }}})
-        
-        self.verify('labels', [{'service.label': 'testing'}])
+        self._invoke(
+            {
+                "docker-swarm": {
+                    "$update": {
+                        "service_id": "updating",
+                        "container_labels": [
+                            {"test.label": "test", "mock.label": "mock"}
+                        ],
+                    }
+                }
+            }
+        )
 
-        self._invoke({'docker-swarm': {'$update': {
-            'service_id': 'updating', 
-            'resources': {'mem_limit': 512}
-        }}})
-        
-        self.verify('resources', {'mem_limit': 512})
+        self.verify("container_labels", [{"test.label": "test", "mock.label": "mock"}])
+
+        self._invoke(
+            {
+                "docker-swarm": {
+                    "$update": {
+                        "service_id": "updating",
+                        "labels": [{"service.label": "testing"}],
+                    }
+                }
+            }
+        )
+
+        self.verify("labels", [{"service.label": "testing"}])
+
+        self._invoke(
+            {
+                "docker-swarm": {
+                    "$update": {
+                        "service_id": "updating",
+                        "resources": {"mem_limit": 512},
+                    }
+                }
+            }
+        )
+
+        self.verify("resources", {"mem_limit": 512})
 
     def verify(self, key, value):
         def assertPropertyEquals(data, prop):
             self.assertIsNotNone(data)
 
-            if '.' in prop:
-                current, remainder = prop.split('.', 1)
+            if "." in prop:
+                current, remainder = prop.split(".", 1)
                 assertPropertyEquals(data.get(current), remainder)
             else:
-                self.assertEqual(data.get(prop), value,
-                                 msg='%s != %s for %s' % (data.get(prop), value, key))
+                self.assertEqual(
+                    data.get(prop),
+                    value,
+                    msg="%s != %s for %s" % (data.get(prop), value, key),
+                )
 
         assertPropertyEquals(self.mock_client.last_update, key)
 
@@ -79,24 +106,24 @@ class MockClient(object):
         return self
 
     def get(self, *args, **kwargs):
-        details = Mock(attrs={
-            'ID': 'testId',
-            'Version': {'Index': 12},
-            'Spec': {
-                'Name': args[0],
-                'Mode': {'Replicated': {'Replicas': 1}},
-                'TaskTemplate': {
-                    'ContainerSpec': {
-                        'Image': 'alpine:mock'
+        details = Mock(
+            attrs={
+                "ID": "testId",
+                "Version": {"Index": 12},
+                "Spec": {
+                    "Name": args[0],
+                    "Mode": {"Replicated": {"Replicas": 1}},
+                    "TaskTemplate": {
+                        "ContainerSpec": {"Image": "alpine:mock"},
+                        "ForceUpdate": 0,
                     },
-                    'ForceUpdate': 0
-                }
-            }
-        }, 
-        reload=lambda: True,
-        update=self.update_service,
-        decode=lambda: details)
-        
+                },
+            },
+            reload=lambda: True,
+            update=self.update_service,
+            decode=lambda: details,
+        )
+
         if self.service_attributes:
             self._merge_attributes(details.attrs, self.service_attributes)
 
@@ -121,4 +148,4 @@ class Mock(dict):
         return self.get(name)
 
     def update(self, *args, **kwargs):
-        return self['update'](*args, **kwargs)
+        return self["update"](*args, **kwargs)

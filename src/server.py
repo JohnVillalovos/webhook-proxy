@@ -12,12 +12,14 @@ class Server(object):
     app = None
     http_port = None
 
-    def __init__(self, endpoint_configurations, host='127.0.0.1', port=5000, imports=None):
+    def __init__(
+        self, endpoint_configurations, host="127.0.0.1", port=5000, imports=None
+    ):
         self.host = host
         self.port = int(port)
 
         if not endpoint_configurations:
-            raise ConfigurationException('No endpoints defined')
+            raise ConfigurationException("No endpoints defined")
 
         Server.http_port = self.port
 
@@ -29,9 +31,11 @@ class Server(object):
 
         action_metrics = self._setup_metrics()
 
-        endpoints = [Endpoint(route, settings, action_metrics)
-                     for config in endpoint_configurations
-                     for route, settings in config.items()]
+        endpoints = [
+            Endpoint(route, settings, action_metrics)
+            for config in endpoint_configurations
+            for route, settings in config.items()
+        ]
 
         for endpoint in endpoints:
             endpoint.setup(self.app)
@@ -39,19 +43,20 @@ class Server(object):
     def _setup_metrics(self):
         metrics = PrometheusMetrics(self.app)
 
-        metrics.info('flask_app_info', 'Application info',
-                     version=os.environ.get('GIT_COMMIT') or 'unknown')
-
         metrics.info(
-            'flask_app_built_at', 'Application build timestamp'
-        ).set(
-            float(os.environ.get('BUILD_TIMESTAMP') or '0')
+            "flask_app_info",
+            "Application info",
+            version=os.environ.get("GIT_COMMIT") or "unknown",
+        )
+
+        metrics.info("flask_app_built_at", "Application build timestamp").set(
+            float(os.environ.get("BUILD_TIMESTAMP") or "0")
         )
 
         action_summary = Summary(
-            'webhook_proxy_actions',
-            'Action invocation metrics',
-            labelnames=('http_route', 'http_method', 'action_type', 'action_index')
+            "webhook_proxy_actions",
+            "Action invocation metrics",
+            labelnames=("http_route", "http_method", "action_type", "action_index"),
         )
 
         return action_summary

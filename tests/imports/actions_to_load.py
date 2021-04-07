@@ -5,20 +5,19 @@ import json
 from actions import action, Action
 
 
-@action('sample')
+@action("sample")
 class SampleAction(Action):
     def __init__(self, **kwargs):
         self.params = kwargs
 
     def _run(self):
-        print('\n'.join('%s=%s' % (key, value) for key, value in self.params.items()))
+        print("\n".join("%s=%s" % (key, value) for key, value in self.params.items()))
 
 
-@action('json')
+@action("json")
 class JsonAction(Action):
     def __init__(self, **kwargs):
         self.params = kwargs
 
     def _run(self):
         print(json.dumps(self.params, indent=2))
-

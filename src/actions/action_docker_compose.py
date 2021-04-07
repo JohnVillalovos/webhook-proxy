@@ -8,12 +8,21 @@ from actions import action
 from actions.action_docker import DockerAction
 
 
-@action('docker-compose')
+@action("docker-compose")
 class DockerComposeAction(DockerAction):
-    def __init__(self, project_name, directory, composefile='docker-compose.yml', output='{{ result }}', **invocations):
-        config = ConfigFile.from_filename('%s/%s' % (directory, composefile))
+    def __init__(
+        self,
+        project_name,
+        directory,
+        composefile="docker-compose.yml",
+        output="{{ result }}",
+        **invocations
+    ):
+        config = ConfigFile.from_filename("%s/%s" % (directory, composefile))
         details = ConfigDetails(directory, [config])
-        self.project = Project.from_config(project_name, load_config(details), self.client.api)
+        self.project = Project.from_config(
+            project_name, load_config(details), self.client.api
+        )
 
         super(DockerComposeAction, self).__init__(output, **invocations)
 
