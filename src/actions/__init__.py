@@ -1,20 +1,18 @@
 from __future__ import print_function
 
 import os
-import time
 import threading
+import time
 import traceback
 
+import docker_helper
 from flask import request
 from jinja2 import Template
 
-import docker_helper
-
-from actions.replay_helper import replay
 from actions.replay_helper import initialize as _initialize_replays
-from util import ActionInvocationException
-from util import ConfigurationException
-from util import ReplayRequested
+from actions.replay_helper import replay
+from util import (ActionInvocationException, ConfigurationException,
+                  ReplayRequested)
 
 
 def _safe_import():
@@ -38,12 +36,12 @@ def _safe_import():
 
 
 def _register_available_actions():
-    from actions.action_log import LogAction
-    from actions.action_execute import ExecuteAction
     from actions.action_evaluate import EvaluateAction
+    from actions.action_execute import ExecuteAction
     from actions.action_github_verify import GitHubVerifyAction
-    from actions.action_sleep import SleepAction
+    from actions.action_log import LogAction
     from actions.action_metrics import MetricsAction
+    from actions.action_sleep import SleepAction
 
     with _safe_import():
         from actions.action_http import HttpAction

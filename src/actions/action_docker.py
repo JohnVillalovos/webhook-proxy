@@ -3,7 +3,7 @@ from __future__ import print_function
 import docker
 import six
 
-from actions import action, Action
+from actions import Action, action
 from util import ConfigurationException
 
 

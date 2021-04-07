@@ -1,6 +1,6 @@
-from unittest_helper import ActionTestBase
-
 import os
+
+from unittest_helper import ActionTestBase
 
 
 class ExecuteActionTest(ActionTestBase):

@@ -3,17 +3,17 @@ from __future__ import print_function
 from timeit import default_timer
 
 from flask import request
-from prometheus_client import Histogram, Summary, Gauge, Counter
+from prometheus_client import Counter, Gauge, Histogram, Summary
 
-from actions import action, Action
+from actions import Action, action
 from util import ConfigurationException
 
 
 @action("metrics")
 class MetricsAction(Action):
     def __init__(self, output="Tracking metrics: {{ metric }}", **kwargs):
-        from server import Server
         from endpoints import Endpoint
+        from server import Server
 
         self._app = Server.app
         self._endpoint = Endpoint.current

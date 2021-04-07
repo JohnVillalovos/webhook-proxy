@@ -1,15 +1,13 @@
 from __future__ import print_function
 
 import json
-import time
 import sqlite3
 import threading
+import time
 import traceback
 
-import requests
-
 import docker_helper
-
+import requests
 
 _database_path = docker_helper.read_configuration(
     "REPLAY_DATABASE", "/var/config/webhooks/replay", "webhooks-replay.db"

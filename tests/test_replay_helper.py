@@ -1,12 +1,11 @@
-import os
 import json as jsonlib
+import os
 import time
 
-import actions.replay_helper as helper
-
-from actions import action, Action
-
 from unittest_helper import ActionTestBase, capture_stream
+
+from actions import Action, action
+import actions.replay_helper as helper
 
 
 class ReplayHelperTest(ActionTestBase):

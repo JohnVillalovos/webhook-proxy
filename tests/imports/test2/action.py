@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from actions import action, Action
+from actions import Action, action
 
 
 @action("test2")

@@ -1,11 +1,12 @@
 from __future__ import print_function
 
-import six
-import hmac
 from hashlib import sha1
-from flask import request
+import hmac
 
-from actions import action, Action
+from flask import request
+import six
+
+from actions import Action, action
 
 
 @action("github-verify")

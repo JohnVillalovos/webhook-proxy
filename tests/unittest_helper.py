@@ -2,8 +2,9 @@ import json
 import sys
 import unittest
 
-from server import Server
 from prometheus_client import REGISTRY
+
+from server import Server
 
 
 def capture_stream(stream="stdout", echo=False):

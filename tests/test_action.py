@@ -4,10 +4,10 @@ import os
 import unittest
 
 import docker_helper
-
-from actions import action, Action
-from server import ConfigurationException
 from unittest_helper import ActionTestBase, capture_stream
+
+from actions import Action, action
+from server import ConfigurationException
 
 
 class ActionTest(ActionTestBase):

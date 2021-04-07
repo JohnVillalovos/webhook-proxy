@@ -4,11 +4,10 @@ import re
 import threading
 import traceback
 
-import six
+import docker_helper
 from flask import request
 from jinja2 import Template
-
-import docker_helper
+import six
 
 from actions import Action
 from util import ConfigurationException, classproperty

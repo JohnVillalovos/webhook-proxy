@@ -1,5 +1,5 @@
-import sys
 import signal
+import sys
 
 import yaml
 

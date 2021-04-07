@@ -1,8 +1,8 @@
 import os
 
-from util import ConfigurationException
-
 from unittest_helper import ActionTestBase
+
+from util import ConfigurationException
 
 
 class ImportTest(ActionTestBase):

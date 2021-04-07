@@ -2,9 +2,9 @@ import random
 
 import docker
 from docker.errors import NotFound
+from unittest_helper import ActionTestBase
 
 from server import ConfigurationException
-from unittest_helper import ActionTestBase
 
 
 class DockerActionTest(ActionTestBase):

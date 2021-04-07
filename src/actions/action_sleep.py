@@ -1,6 +1,6 @@
 import time
 
-from actions import action, Action
+from actions import Action, action
 
 
 @action("sleep")

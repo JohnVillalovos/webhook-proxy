@@ -4,7 +4,7 @@ import threading
 import six
 
 if six.PY2:
-    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 else:
     from http.server import HTTPServer, BaseHTTPRequestHandler
 

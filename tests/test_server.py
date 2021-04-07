@@ -1,11 +1,12 @@
+import json
 import os
 import sys
-import json
 import time
 import unittest
 
-from server import Server, ConfigurationException
-from unittest_helper import unregister_metrics, capture_stream
+from unittest_helper import capture_stream, unregister_metrics
+
+from server import ConfigurationException, Server
 
 
 class ServerTest(unittest.TestCase):

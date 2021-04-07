@@ -1,7 +1,8 @@
 import json
+
 import requests
 
-from actions import action, Action
+from actions import Action, action
 
 
 @action("http")

@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from compose.config.config import ConfigFile, ConfigDetails
+from compose.config.config import ConfigDetails, ConfigFile
 from compose.config.config import load as load_config
 from compose.project import Project
 
